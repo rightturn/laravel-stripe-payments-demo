@@ -1,0 +1,40 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      APP_ENV: local
+      APP_KEY: "${APP_KEY:?Set APP_KEY first (export APP_KEY=base64:$(openssl rand -base64 32))}"
+      APP_URL: "http://localhost:${APP_PORT:-8000}"
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: shop
+      DB_USERNAME: shop
+      DB_PASSWORD: secret
+      # Offline demo by default. For real Stripe test mode set PAYMENTS_DRIVER=stripe and your keys.
+      PAYMENTS_DRIVER: "${PAYMENTS_DRIVER:-fake}"
+      STRIPE_SECRET: "${STRIPE_SECRET:-}"
+      STRIPE_WEBHOOK_SECRET: "${STRIPE_WEBHOOK_SECRET:-whsec_demo}"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: shop
+      MYSQL_USER: shop
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: root-secret
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psecret", "-ushop"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  dbdata:
