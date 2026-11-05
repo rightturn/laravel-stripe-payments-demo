@@ -66,7 +66,7 @@ same signed event produced 1 `applied` and 11 `duplicate`**, one row in `stripe_
 ```bash
 composer install
 cp .env.example .env && php artisan key:generate
-php artisan test         # 24 tests, in-memory SQLite, no network
+php artisan test         # 26 tests, in-memory SQLite, no network
 ```
 The webhook tests build real events and sign them with HMAC-SHA256 exactly like Stripe, then run them through Stripe's own
 verification code. They cover signature failures, replay protection, duplicates, amount and currency mismatches,
